@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uniformity Classifier - Project Summary</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #16a34a;
+            --warning: #ea580c;
+            --danger: #dc2626;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: var(--gray-800);
+            background: var(--gray-50);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .badge-success { background: var(--success); color: white; }
+        .badge-warning { background: var(--warning); color: white; }
+        .badge-primary { background: var(--primary); color: white; }
+
+        section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            color: var(--gray-900);
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        h3 {
+            color: var(--gray-800);
+            font-size: 1.25rem;
+            margin: 1.5rem 0 1rem;
+        }
+
+        h4 {
+            color: var(--gray-700);
+            font-size: 1.1rem;
+            margin: 1rem 0 0.5rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--gray-600);
+        }
+
+        .highlight {
+            background: #fef3c7;
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+        }
+
+        .concept-box {
+            background: var(--gray-50);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .concept-box h4 {
+            color: var(--primary);
+            margin-top: 0;
+        }
+
+        .warning-box {
+            background: #fef2f2;
+            border-left: 4px solid var(--danger);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .success-box {
+            background: #f0fdf4;
+            border-left: 4px solid var(--success);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        th {
+            background: var(--gray-100);
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        tr:hover {
+            background: var(--gray-50);
+        }
+
+        code {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            background: var(--gray-100);
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+            font-size: 0.875em;
+        }
+
+        pre {
+            background: var(--gray-900);
+            color: #e5e7eb;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+
+        .code-comment { color: #6b7280; }
+        .code-keyword { color: #f472b6; }
+        .code-string { color: #34d399; }
+        .code-function { color: #60a5fa; }
+        .code-number { color: #fbbf24; }
+
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .card h4 {
+            margin-top: 0;
+            color: var(--primary);
+        }
+
+        .file-card {
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .file-header {
+            background: var(--gray-800);
+            color: white;
+            padding: 0.75rem 1rem;
+            font-family: monospace;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .file-icon {
+            width: 16px;
+            height: 16px;
+            background: #3b82f6;
+            border-radius: 3px;
+        }
+
+        .file-body {
+            padding: 1.5rem;
+        }
+
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 2rem 0;
+        }
+
+        .flow-box {
+            background: var(--primary);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .flow-arrow {
+            font-size: 1.5rem;
+            color: var(--gray-400);
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .metric-card .label {
+            opacity: 0.9;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .metric-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .confusion-matrix {
+            display: grid;
+            grid-template-columns: auto 1fr 1fr;
+            gap: 2px;
+            max-width: 400px;
+            margin: 1rem auto;
+            background: var(--gray-300);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .cm-cell {
+            padding: 1rem;
+            text-align: center;
+            background: white;
+        }
+
+        .cm-header {
+            background: var(--gray-100);
+            font-weight: 600;
+        }
+
+        .cm-tn { background: #dcfce7; }
+        .cm-fp { background: #fee2e2; }
+        .cm-fn { background: #fef3c7; }
+        .cm-tp { background: #dbeafe; }
+
+        .toc {
+            background: var(--gray-100);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+        }
+
+        .toc ul {
+            list-style: none;
+            columns: 2;
+        }
+
+        .toc a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
+            font-size: 14px;
+        }
+
+        .tree {
+            font-family: monospace;
+            background: var(--gray-900);
+            color: #e5e7eb;
+            padding: 1.5rem;
+            border-radius: 8px;
+            line-height: 1.8;
+        }
+
+        .tree .folder { color: #60a5fa; }
+        .tree .file { color: #34d399; }
+        .tree .comment { color: #6b7280; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Uniformity Test Classifier</h1>
+            <p>GE HealthCare Take-Home Assignment - Complete Project Summary</p>
+            <span class="badge badge-success">39 Tests Passing</span>
+            <span class="badge badge-primary">Python 3.9+</span>
+            <span class="badge badge-warning">~4 Hour Timebox</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Table of Contents -->
+        <nav class="toc">
+            <h3>Table of Contents</h3>
+            <ul>
+                <li><a href="#overview">1. Project Overview</a></li>
+                <li><a href="#domain">2. Domain Knowledge</a></li>
+                <li><a href="#ml-concepts">3. ML Concepts Explained</a></li>
+                <li><a href="#architecture">4. Architecture</a></li>
+                <li><a href="#files">5. File-by-File Breakdown</a></li>
+                <li><a href="#features">6. Hand-Crafted Features</a></li>
+                <li><a href="#evaluation">7. Evaluation Metrics</a></li>
+                <li><a href="#running">8. How to Run</a></li>
+            </ul>
+        </nav>
+
+        <!-- Section 1: Overview -->
+        <section id="overview">
+            <h2>1. Project Overview</h2>
+
+            <p>This project builds a <strong>binary classifier</strong> that determines whether a medical scanner uniformity test image is <span class="highlight">PASS</span> or <span class="highlight">FAIL</span>.</p>
+
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="value">2</div>
+                    <div class="label">Models Built</div>
+                </div>
+                <div class="metric-card">
+                    <div class="value">8</div>
+                    <div class="label">Features Extracted</div>
+                </div>
+                <div class="metric-card">
+                    <div class="value">39</div>
+                    <div class="label">Unit Tests</div>
+                </div>
+                <div class="metric-card">
+                    <div class="value">6</div>
+                    <div class="label">Source Modules</div>
+                </div>
+            </div>
+
+            <h3>The Two Models</h3>
+            <div class="grid grid-2">
+                <div class="card">
+                    <h4>Baseline: Random Forest</h4>
+                    <p>Traditional ML approach using hand-crafted image features. Interpretable, fast, no GPU needed.</p>
+                    <ul>
+                        <li>Extracts 8 statistical features from each image</li>
+                        <li>Trains a Random Forest classifier</li>
+                        <li>Provides feature importance rankings</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Advanced: GPT-4o Vision</h4>
+                    <p>Modern LLM approach using OpenAI's multimodal model. Provides natural language reasoning.</p>
+                    <ul>
+                        <li>Sends image to GPT-4o API</li>
+                        <li>Gets classification + explanation</li>
+                        <li>Caches results for offline use</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Domain Knowledge -->
+        <section id="domain">
+            <h2>2. Domain Knowledge: Scanner Uniformity Testing</h2>
+
+            <div class="concept-box">
+                <h4>What is Uniformity Testing?</h4>
+                <p>Medical scanners (MRI, CT, PET) need regular quality assurance. Uniformity testing checks if the scanner produces <strong>consistent signal intensity</strong> across the entire imaging area.</p>
+            </div>
+
+            <h3>How It Works</h3>
+            <div class="flow-diagram">
+                <div class="flow-box">Phantom<br><small>(uniform test object)</small></div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box">Scanner<br><small>(MRI/CT/PET)</small></div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box">Image<br><small>(should be uniform)</small></div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box">QA Check<br><small>(PASS/FAIL)</small></div>
+            </div>
+
+            <h3>What Makes an Image FAIL?</h3>
+            <div class="grid grid-2">
+                <div class="warning-box">
+                    <h4>Failure Indicators</h4>
+                    <ul>
+                        <li><strong>Bright/dark spots</strong> - localized intensity variations</li>
+                        <li><strong>Gradients</strong> - one side brighter than the other</li>
+                        <li><strong>Banding</strong> - stripe artifacts across image</li>
+                        <li><strong>Ring artifacts</strong> - concentric circles</li>
+                        <li><strong>Signal dropouts</strong> - dead zones with no signal</li>
+                    </ul>
+                </div>
+                <div class="success-box">
+                    <h4>Pass Indicators</h4>
+                    <ul>
+                        <li><strong>Uniform brightness</strong> throughout the image</li>
+                        <li><strong>Minor variations</strong> within acceptable tolerance</li>
+                        <li><strong>No obvious artifacts</strong> or patterns</li>
+                        <li><strong>Smooth histogram</strong> - concentrated pixel distribution</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: ML Concepts -->
+        <section id="ml-concepts">
+            <h2>3. ML Concepts Explained</h2>
+
+            <h3>Random Forest</h3>
+            <div class="concept-box">
+                <h4>What is a Decision Tree?</h4>
+                <p>A flowchart of yes/no questions that leads to a classification:</p>
+                <pre><code>Is std_intensity > 15?
+├── Yes → Is gradient_magnitude > 0.3?
+│         ├── Yes → <span class="code-string">FAIL</span>
+│         └── No  → <span class="code-string">FAIL</span>
+└── No  → Is center_vs_edge_ratio < 0.8?
+          ├── Yes → <span class="code-string">FAIL</span>
+          └── No  → <span class="code-string">PASS</span></code></pre>
+            </div>
+
+            <div class="concept-box">
+                <h4>Random Forest = Many Trees Voting</h4>
+                <p>A single tree overfits (memorizes training data). Random Forest solves this by:</p>
+                <ol>
+                    <li>Creating 100+ decision trees</li>
+                    <li>Each tree sees a <strong>random subset</strong> of the data</li>
+                    <li>Each tree considers <strong>random features</strong> at each split</li>
+                    <li>Final prediction = <strong>majority vote</strong> across all trees</li>
+                </ol>
+                <p><em>"Wisdom of crowds" - many weak learners combine to make a strong learner.</em></p>
+            </div>
+
+            <h3>Why Random Forest for This Problem?</h3>
+            <table>
+                <tr>
+                    <th>Reason</th>
+                    <th>Explanation</th>
+                </tr>
+                <tr>
+                    <td>Small dataset friendly</td>
+                    <td>Works with hundreds of samples (deep learning needs thousands)</td>
+                </tr>
+                <tr>
+                    <td>No GPU required</td>
+                    <td>Trains in seconds on CPU</td>
+                </tr>
+                <tr>
+                    <td>Interpretable</td>
+                    <td>Provides feature importance - which metrics matter most</td>
+                </tr>
+                <tr>
+                    <td>Hard to mess up</td>
+                    <td>Sensible defaults usually work, few hyperparameters</td>
+                </tr>
+            </table>
+
+            <h3>Classification Terminology</h3>
+            <div class="concept-box">
+                <h4>"Prediction" in ML</h4>
+                <p><strong>Prediction</strong> simply means "the model's output" - not predicting the future!</p>
+                <pre><code>Image (unknown to model) → Model analyzes → Model outputs "<span class="code-string">FAIL</span>" → This is the "prediction"
+                                                    ↓
+                              Compare to actual label (ground truth)
+                                                    ↓
+                              Was the model right or wrong?</code></pre>
+            </div>
+        </section>
+
+        <!-- Section 4: Architecture -->
+        <section id="architecture">
+            <h2>4. Project Architecture</h2>
+
+            <h3>Pipeline Flow</h3>
+            <div class="flow-diagram">
+                <div class="flow-box">Load Data<br><small>DICOM/PNG</small></div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box">Split<br><small>80/20</small></div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box">Extract<br><small>Features</small></div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box">Train<br><small>Models</small></div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box">Evaluate<br><small>Compare</small></div>
+            </div>
+
+            <h3>Directory Structure</h3>
+            <div class="tree">
+<span class="folder">uniformity-classifier/</span>
+├── <span class="file">main.py</span>              <span class="comment"># Entry point - orchestrates everything</span>
+├── <span class="file">README.md</span>            <span class="comment"># Quick start guide</span>
+├── <span class="file">REPORT.md</span>            <span class="comment"># Summary report template</span>
+├── <span class="file">requirements.txt</span>     <span class="comment"># Dependencies</span>
+│
+├── <span class="folder">src/</span>                  <span class="comment"># Source modules</span>
+│   ├── <span class="file">data_loader.py</span>   <span class="comment"># Load images, split data</span>
+│   ├── <span class="file">features.py</span>      <span class="comment"># Extract 8 features</span>
+│   ├── <span class="file">baseline.py</span>      <span class="comment"># Random Forest classifier</span>
+│   ├── <span class="file">advanced.py</span>      <span class="comment"># GPT-4o classifier</span>
+│   └── <span class="file">evaluate.py</span>      <span class="comment"># Metrics & visualization</span>
+│
+├── <span class="folder">tests/</span>                <span class="comment"># 39 unit tests</span>
+│   ├── <span class="file">test_data_loader.py</span>
+│   ├── <span class="file">test_features.py</span>
+│   └── <span class="file">test_evaluate.py</span>
+│
+├── <span class="folder">data/</span>                 <span class="comment"># Your images go here</span>
+│   ├── <span class="folder">PASS/</span>
+│   └── <span class="folder">FAIL/</span>
+│
+├── <span class="folder">cache/</span>                <span class="comment"># GPT-4o response cache</span>
+└── <span class="folder">outputs/</span>              <span class="comment"># Generated results</span>
+            </div>
+        </section>
+
+        <!-- Section 5: File Breakdown -->
+        <section id="files">
+            <h2>5. File-by-File Breakdown</h2>
+
+            <!-- main.py -->
+            <div class="file-card">
+                <div class="file-header">
+                    <div class="file-icon"></div>
+                    main.py
+                </div>
+                <div class="file-body">
+                    <p><strong>Purpose:</strong> Entry point that orchestrates the entire pipeline.</p>
+
+                    <h4>Key Features</h4>
+                    <ul>
+                        <li><strong>CLI Arguments:</strong> <code>--data-dir</code>, <code>--test-size</code>, <code>--verbose</code>, <code>--no-advanced</code></li>
+                        <li><strong>Logging:</strong> Timestamped output with debug mode</li>
+                        <li><strong>Error Handling:</strong> Graceful exit with helpful messages</li>
+                        <li><strong>Return Codes:</strong> Returns 0 on success, 1 on error</li>
+                    </ul>
+
+                    <h4>Flow</h4>
+                    <pre><code><span class="code-keyword">def</span> <span class="code-function">main</span>() -> <span class="code-keyword">int</span>:
+    <span class="code-comment"># [1/6] Load and split data</span>
+    images, labels, paths = load_dataset(args.data_dir)
+    train_data, test_data = split_dataset(...)
+
+    <span class="code-comment"># [2/6] Visualize sample images</span>
+    plot_sample_images(...)
+
+    <span class="code-comment"># [3/6] Train baseline (Random Forest)</span>
+    train_features = extract_features(train_images)
+    model, importances = train_baseline(train_features, train_labels)
+
+    <span class="code-comment"># [4/6] Run advanced model (GPT-4o)</span>
+    advanced_predictions, reasoning = predict_advanced(...)
+
+    <span class="code-comment"># [5/6] Generate outputs</span>
+    plot_confusion_matrix(...)
+    generate_per_image_report(...)
+
+    <span class="code-comment"># [6/6] Compare and summarize</span>
+    comparison = compare_models(...)</code></pre>
+                </div>
+            </div>
+
+            <!-- data_loader.py -->
+            <div class="file-card">
+                <div class="file-header">
+                    <div class="file-icon"></div>
+                    src/data_loader.py
+                </div>
+                <div class="file-body">
+                    <p><strong>Purpose:</strong> Load images from disk and split into train/test sets.</p>
+
+                    <h4>Key Functions</h4>
+                    <table>
+                        <tr>
+                            <th>Function</th>
+                            <th>Purpose</th>
+                        </tr>
+                        <tr>
+                            <td><code>load_image(path)</code></td>
+                            <td>Load single image (DICOM or PNG/JPG) → numpy array</td>
+                        </tr>
+                        <tr>
+                            <td><code>load_dataset(data_dir)</code></td>
+                            <td>Load all images from PASS/ and FAIL/ folders</td>
+                        </tr>
+                        <tr>
+                            <td><code>split_dataset(...)</code></td>
+                            <td>Stratified 80/20 train/test split</td>
+                        </tr>
+                    </table>
+
+                    <h4>DICOM Support</h4>
+                    <pre><code><span class="code-keyword">if</span> suffix == <span class="code-string">".dcm"</span>:
+    dcm = pydicom.dcmread(path)
+    pixel_array = dcm.pixel_array.astype(np.float32)
+    <span class="code-comment"># Normalize to 0-255</span>
+    pixel_array = (pixel_array - pixel_array.min()) / (pixel_array.max() - pixel_array.min()) * <span class="code-number">255</span></code></pre>
+
+                    <div class="concept-box">
+                        <h4>What is Stratified Split?</h4>
+                        <p>Maintains the same class ratio in train and test sets. If your data is 60% PASS / 40% FAIL, both train and test will be 60/40.</p>
+                    </div>
+
+                    <div class="concept-box">
+                        <h4>Why 80/20 Split?</h4>
+                        <p>It's a balance between two competing needs:</p>
+                        <ul>
+                            <li><strong>Enough training data:</strong> Model can't learn patterns if it sees too few examples</li>
+                            <li><strong>Enough test data:</strong> Metrics are unreliable if computed on too few examples</li>
+                        </ul>
+                        <p>With 100 images and 95/5 split: testing on 5 images means one wrong = 20% error swing!</p>
+                        <p><strong>80/20 is the convention</strong> because it works well across most dataset sizes.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- features.py -->
+            <div class="file-card">
+                <div class="file-header">
+                    <div class="file-icon"></div>
+                    src/features.py
+                </div>
+                <div class="file-body">
+                    <p><strong>Purpose:</strong> Extract 8 hand-crafted features from each image that capture what makes an image PASS or FAIL.</p>
+
+                    <h4>The 8 Features</h4>
+                    <table>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Formula</th>
+                            <th>What It Detects</th>
+                        </tr>
+                        <tr>
+                            <td><code>mean_intensity</code></td>
+                            <td>mean(pixels)</td>
+                            <td>Baseline brightness level</td>
+                        </tr>
+                        <tr>
+                            <td><code>std_intensity</code></td>
+                            <td>std(pixels)</td>
+                            <td>Overall variability</td>
+                        </tr>
+                        <tr>
+                            <td><code>coef_of_variation</code></td>
+                            <td>std / mean</td>
+                            <td>Normalized uniformity (scale-independent)</td>
+                        </tr>
+                        <tr>
+                            <td><code>gradient_magnitude</code></td>
+                            <td>mean(Sobel filter)</td>
+                            <td>Edges and transitions</td>
+                        </tr>
+                        <tr>
+                            <td><code>max_local_variance</code></td>
+                            <td>max(variance in windows)</td>
+                            <td>Artifact hotspots</td>
+                        </tr>
+                        <tr>
+                            <td><code>histogram_entropy</code></td>
+                            <td>-Σ(p * log(p))</td>
+                            <td>Distribution spread</td>
+                        </tr>
+                        <tr>
+                            <td><code>percentile_range</code></td>
+                            <td>p95 - p5</td>
+                            <td>Robust spread (outlier-resistant)</td>
+                        </tr>
+                        <tr>
+                            <td><code>center_vs_edge_ratio</code></td>
+                            <td>center_mean / edge_mean</td>
+                            <td>Vignetting (dark edges)</td>
+                        </tr>
+                    </table>
+
+                    <h4>Sobel Filter (Gradient Detection)</h4>
+                    <pre><code><span class="code-comment"># Detects edges by computing directional derivatives</span>
+sobel_x = ndimage.sobel(image, axis=<span class="code-number">1</span>)  <span class="code-comment"># Horizontal edges</span>
+sobel_y = ndimage.sobel(image, axis=<span class="code-number">0</span>)  <span class="code-comment"># Vertical edges</span>
+magnitude = np.sqrt(sobel_x**<span class="code-number">2</span> + sobel_y**<span class="code-number">2</span>)  <span class="code-comment"># Combined</span></code></pre>
+                </div>
+            </div>
+
+            <!-- baseline.py -->
+            <div class="file-card">
+                <div class="file-header">
+                    <div class="file-icon"></div>
+                    src/baseline.py
+                </div>
+                <div class="file-body">
+                    <p><strong>Purpose:</strong> Train and use a Random Forest classifier on the extracted features.</p>
+
+                    <h4>BaselineClassifier Class</h4>
+                    <pre><code><span class="code-keyword">class</span> <span class="code-function">BaselineClassifier</span>:
+    <span class="code-keyword">def</span> <span class="code-function">__init__</span>(self, n_estimators=<span class="code-number">100</span>, max_depth=<span class="code-number">10</span>):
+        self.model = RandomForestClassifier(
+            n_estimators=n_estimators,    <span class="code-comment"># 100 trees</span>
+            max_depth=max_depth,          <span class="code-comment"># Prevent overfitting</span>
+            class_weight=<span class="code-string">"balanced"</span>,     <span class="code-comment"># Handle imbalance</span>
+            min_samples_leaf=<span class="code-number">2</span>,          <span class="code-comment"># Regularization</span>
+        )
+        self.scaler = StandardScaler()  <span class="code-comment"># Normalize features</span>
+
+    <span class="code-keyword">def</span> <span class="code-function">fit</span>(self, features, labels):
+        features_scaled = self.scaler.fit_transform(features)
+        self.model.fit(features_scaled, labels)
+
+    <span class="code-keyword">def</span> <span class="code-function">predict</span>(self, features):
+        features_scaled = self.scaler.transform(features)
+        <span class="code-keyword">return</span> self.model.predict(features_scaled)</code></pre>
+
+                    <div class="concept-box">
+                        <h4>Why StandardScaler?</h4>
+                        <p>Normalizes features to have mean=0 and std=1. While Random Forest doesn't strictly need this (unlike neural networks), it helps with numerical stability and makes feature importances more comparable.</p>
+                    </div>
+
+                    <h4>Feature Importance</h4>
+                    <p>Random Forest tells you which features matter most. This is gold for interpretability - you can explain <em>why</em> the model makes decisions.</p>
+                </div>
+            </div>
+
+            <!-- advanced.py -->
+            <div class="file-card">
+                <div class="file-header">
+                    <div class="file-icon"></div>
+                    src/advanced.py
+                </div>
+                <div class="file-body">
+                    <p><strong>Purpose:</strong> Use GPT-4o Vision API to classify images with natural language reasoning.</p>
+
+                    <h4>The Prompt</h4>
+                    <pre><code><span class="code-string">"""You are a medical imaging QA specialist analyzing scanner uniformity tests.
+
+This image shows a phantom scan from a medical scanner. The phantom is a
+uniform test object, so the resulting image SHOULD appear uniform.
+
+Analyze this image for:
+1. Brightness variations or gradients
+2. Artifacts (rings, bands, stripes, spots)
+3. Signal dropouts or dead zones
+
+Respond ONLY with valid JSON:
+{"classification": "PASS", "confidence": 85, "reasoning": "..."} """</span></code></pre>
+
+                    <h4>Caching System</h4>
+                    <pre><code><span class="code-comment"># Images are hashed for cache lookup</span>
+image_hash = hashlib.md5(image.tobytes()).hexdigest()
+
+<span class="code-keyword">if</span> image_hash <span class="code-keyword">in</span> cache:
+    <span class="code-keyword">return</span> cache[image_hash]  <span class="code-comment"># No API call needed!</span>
+<span class="code-keyword">else</span>:
+    result = call_gpt4o_api(image)
+    cache[image_hash] = result
+    save_cache(cache)  <span class="code-comment"># Persist for offline use</span></code></pre>
+
+                    <div class="success-box">
+                        <h4>Why Caching Matters</h4>
+                        <p>The assignment says: "If you use commercial APIs, ensure your solution can also run in an offline/fallback mode."</p>
+                        <p>By caching all responses, the pipeline can be reproduced without internet access.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- evaluate.py -->
+            <div class="file-card">
+                <div class="file-header">
+                    <div class="file-icon"></div>
+                    src/evaluate.py
+                </div>
+                <div class="file-body">
+                    <p><strong>Purpose:</strong> Compute metrics, generate visualizations, and compare models.</p>
+
+                    <h4>Key Functions</h4>
+                    <table>
+                        <tr>
+                            <th>Function</th>
+                            <th>Output</th>
+                        </tr>
+                        <tr>
+                            <td><code>evaluate_model()</code></td>
+                            <td>Accuracy, precision, recall, F1, confusion matrix</td>
+                        </tr>
+                        <tr>
+                            <td><code>compare_models()</code></td>
+                            <td>Side-by-side comparison with winner per metric</td>
+                        </tr>
+                        <tr>
+                            <td><code>plot_confusion_matrix()</code></td>
+                            <td>Visual PNG of confusion matrix</td>
+                        </tr>
+                        <tr>
+                            <td><code>generate_per_image_report()</code></td>
+                            <td>CSV with per-image predictions</td>
+                        </tr>
+                        <tr>
+                            <td><code>plot_sample_images()</code></td>
+                            <td>Visual grid of PASS vs FAIL examples</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Features Deep Dive -->
+        <section id="features">
+            <h2>6. Hand-Crafted Features Deep Dive</h2>
+
+            <p>Each feature captures something a human QA specialist would look for:</p>
+
+            <div class="grid grid-2">
+                <div class="card">
+                    <h4>Coefficient of Variation</h4>
+                    <p><code>CV = std / mean</code></p>
+                    <p>Why it's powerful: Normalized measure that works regardless of overall brightness. A CV of 0.1 means "10% relative variation" whether the image is dark or bright.</p>
+                    <ul>
+                        <li>CV ≈ 0: Perfectly uniform</li>
+                        <li>CV > 0.1: Likely has issues</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Gradient Magnitude</h4>
+                    <p><code>mean(|∇I|)</code></p>
+                    <p>Uses Sobel operator to detect edges. Uniform images have low gradients everywhere. High gradient = intensity changes = potential problem.</p>
+                    <ul>
+                        <li>Low: Smooth, uniform</li>
+                        <li>High: Edges, artifacts, banding</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Max Local Variance</h4>
+                    <p><code>max(var in 16x16 windows)</code></p>
+                    <p>Scans the image with a sliding window, finds the "worst" region. Even if the overall image looks okay, a single bad spot will be caught.</p>
+                    <ul>
+                        <li>Low: Uniformly consistent</li>
+                        <li>High: Hotspot detected</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Center vs Edge Ratio</h4>
+                    <p><code>center_mean / edge_mean</code></p>
+                    <p>Detects vignetting (darker edges) or inverse vignetting (darker center). Common in MRI coil sensitivity issues.</p>
+                    <ul>
+                        <li>≈ 1.0: Uniform brightness</li>
+                        <li>> 1.0: Bright center, dark edges</li>
+                        <li>< 1.0: Dark center, bright edges</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Evaluation Metrics -->
+        <section id="evaluation">
+            <h2>7. Evaluation Metrics Explained</h2>
+
+            <h3>The Confusion Matrix</h3>
+            <div class="confusion-matrix">
+                <div class="cm-cell cm-header"></div>
+                <div class="cm-cell cm-header">Predicted PASS</div>
+                <div class="cm-cell cm-header">Predicted FAIL</div>
+                <div class="cm-cell cm-header">Actual PASS</div>
+                <div class="cm-cell cm-tn"><strong>TN</strong><br>True Negative<br><small>Correct PASS</small></div>
+                <div class="cm-cell cm-fp"><strong>FP</strong><br>False Positive<br><small>Wrong FAIL</small></div>
+                <div class="cm-cell cm-header">Actual FAIL</div>
+                <div class="cm-cell cm-fn"><strong>FN</strong><br>False Negative<br><small>Missed FAIL</small></div>
+                <div class="cm-cell cm-tp"><strong>TP</strong><br>True Positive<br><small>Correct FAIL</small></div>
+            </div>
+
+            <h3>The Four Metrics</h3>
+            <table>
+                <tr>
+                    <th>Metric</th>
+                    <th>Formula</th>
+                    <th>Question It Answers</th>
+                </tr>
+                <tr>
+                    <td><strong>Accuracy</strong></td>
+                    <td>(TP + TN) / Total</td>
+                    <td>What % did we get right overall?</td>
+                </tr>
+                <tr>
+                    <td><strong>Precision</strong></td>
+                    <td>TP / (TP + FP)</td>
+                    <td>When we say FAIL, how often are we right?</td>
+                </tr>
+                <tr>
+                    <td><strong>Recall</strong></td>
+                    <td>TP / (TP + FN)</td>
+                    <td>Of all actual FAILs, how many did we catch?</td>
+                </tr>
+                <tr>
+                    <td><strong>F1 Score</strong></td>
+                    <td>2 × (P × R) / (P + R)</td>
+                    <td>Balance between precision and recall</td>
+                </tr>
+            </table>
+
+            <div class="warning-box">
+                <h4>Why Recall Matters in Medical QA</h4>
+                <p><strong>False Negative (missed FAIL)</strong> = A bad scanner stays in use, potentially affecting patient diagnoses.</p>
+                <p><strong>False Positive (wrong FAIL)</strong> = Unnecessary service call, but no patient harm.</p>
+                <p>In this context, <strong>high recall is more important</strong> - we'd rather have some false alarms than miss actual problems.</p>
+            </div>
+        </section>
+
+        <!-- Section 8: How to Run -->
+        <section id="running">
+            <h2>8. How to Run</h2>
+
+            <h3>Quick Start</h3>
+            <pre><code><span class="code-comment"># Setup</span>
+git clone https://github.com/steinerhunter/uniformity-classifier.git
+cd uniformity-classifier
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+<span class="code-comment"># Add your data</span>
+<span class="code-comment"># Put images in data/PASS/ and data/FAIL/</span>
+
+<span class="code-comment"># Set API key</span>
+export OPENAI_API_KEY=your_key_here
+
+<span class="code-comment"># Run!</span>
+python main.py</code></pre>
+
+            <h3>CLI Options</h3>
+            <table>
+                <tr>
+                    <th>Option</th>
+                    <th>Default</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>--data-dir</code></td>
+                    <td>./data</td>
+                    <td>Where your images are</td>
+                </tr>
+                <tr>
+                    <td><code>--output-dir</code></td>
+                    <td>./outputs</td>
+                    <td>Where results go</td>
+                </tr>
+                <tr>
+                    <td><code>--test-size</code></td>
+                    <td>0.2</td>
+                    <td>Fraction for testing (20%)</td>
+                </tr>
+                <tr>
+                    <td><code>--no-advanced</code></td>
+                    <td>false</td>
+                    <td>Skip GPT-4o (faster)</td>
+                </tr>
+                <tr>
+                    <td><code>--verbose</code></td>
+                    <td>false</td>
+                    <td>Debug output</td>
+                </tr>
+            </table>
+
+            <h3>Output Files</h3>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-icon">📊</div>
+                    <div><code>results.json</code> - Full metrics, feature importances</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📈</div>
+                    <div><code>confusion_matrix_baseline.png</code></div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📈</div>
+                    <div><code>confusion_matrix_advanced.png</code></div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📋</div>
+                    <div><code>per_image_results.csv</code> - Per-image breakdown</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🖼️</div>
+                    <div><code>sample_images.png</code> - Visual examples</div>
+                </div>
+            </div>
+
+            <h3>Running Tests</h3>
+            <pre><code><span class="code-comment"># Run all 39 tests</span>
+pytest tests/ -v
+
+<span class="code-comment"># With coverage report</span>
+pytest tests/ --cov=src --cov-report=term-missing</code></pre>
+        </section>
+
+        <footer style="text-align: center; padding: 2rem; color: var(--gray-600);">
+            <p>Built for GE HealthCare Take-Home Assignment</p>
+            <p>Repository: <a href="https://github.com/steinerhunter/uniformity-classifier">github.com/steinerhunter/uniformity-classifier</a></p>
+        </footer>
+    </div>
+</body>
+</html>
