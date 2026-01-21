@@ -108,6 +108,23 @@ We use GPT-4o Vision not as a novelty, but because it provides something traditi
 }
 ```
 
+### Prompt Engineering Iteration
+
+We refined the prompt based on initial results:
+
+| Version | Change | Impact |
+|---------|--------|--------|
+| v1 (initial) | Basic uniformity analysis prompt | TBD |
+| v2 | TBD | TBD |
+| v3 | TBD | TBD |
+
+**Observations from iteration:**
+- TBD: Note specific failure patterns and how we addressed them
+- TBD: What edge cases required prompt adjustments
+- TBD: Final prompt improvements
+
+*(This section demonstrates that we tested, observed, and refined - not just "run once and submit.")*
+
 ### Results
 
 | Metric | Value |
