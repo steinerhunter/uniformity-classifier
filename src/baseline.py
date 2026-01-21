@@ -9,9 +9,11 @@ Random Forest is chosen because:
 - Hard to mess up with default parameters
 """
 
-from typing import List, Tuple
+from __future__ import annotations
+
 import pickle
 from pathlib import Path
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
@@ -28,25 +30,36 @@ class BaselineClassifier:
         feature_importances: Dict of feature name -> importance score
     """
 
-    def __init__(self, n_estimators: int = 100, random_state: int = 42):
+    def __init__(
+        self,
+        n_estimators: int = 100,
+        max_depth: int = 10,
+        random_state: int = 42
+    ) -> None:
         """
         Initialize classifier.
 
         Args:
             n_estimators: Number of trees in the forest
+            max_depth: Maximum depth of trees (prevents overfitting)
             random_state: Random seed for reproducibility
         """
         self.model = RandomForestClassifier(
             n_estimators=n_estimators,
             random_state=random_state,
             class_weight="balanced",  # Handle potential class imbalance
-            max_depth=10,  # Prevent overfitting on small datasets
+            max_depth=max_depth,
             min_samples_leaf=2,
         )
         self.scaler = StandardScaler()
-        self.feature_importances = {}
+        self.feature_importances: Dict[str, float] = {}
 
-    def fit(self, features: np.ndarray, labels: List[int], feature_names: List[str] = None):
+    def fit(
+        self,
+        features: np.ndarray,
+        labels: List[int],
+        feature_names: Optional[List[str]] = None
+    ) -> Dict[str, float]:
         """
         Train the classifier.
 
@@ -54,6 +67,9 @@ class BaselineClassifier:
             features: 2D array of shape (n_samples, n_features)
             labels: List of labels (0=PASS, 1=FAIL)
             feature_names: Optional list of feature names for importance tracking
+
+        Returns:
+            Dictionary of feature name -> importance (sorted by importance)
         """
         # Scale features
         features_scaled = self.scaler.fit_transform(features)
@@ -65,6 +81,8 @@ class BaselineClassifier:
         if feature_names:
             importances = self.model.feature_importances_
             self.feature_importances = dict(zip(feature_names, importances))
+
+        return self.get_feature_importances()
 
     def predict(self, features: np.ndarray) -> List[int]:
         """
@@ -92,51 +110,58 @@ class BaselineClassifier:
         features_scaled = self.scaler.transform(features)
         return self.model.predict_proba(features_scaled)
 
-    def get_feature_importances(self) -> dict:
-        """Return feature importances sorted by importance."""
+    def get_feature_importances(self) -> Dict[str, float]:
+        """Return feature importances sorted by importance (descending)."""
         return dict(sorted(
             self.feature_importances.items(),
             key=lambda x: x[1],
             reverse=True
         ))
 
-    def save(self, path: Path):
+    def save(self, path: Path) -> None:
         """Save model to disk."""
         with open(path, "wb") as f:
-            pickle.dump({"model": self.model, "scaler": self.scaler}, f)
+            pickle.dump({
+                "model": self.model,
+                "scaler": self.scaler,
+                "feature_importances": self.feature_importances
+            }, f)
 
-    def load(self, path: Path):
+    @classmethod
+    def load(cls, path: Path) -> "BaselineClassifier":
         """Load model from disk."""
+        instance = cls()
         with open(path, "rb") as f:
             data = pickle.load(f)
-            self.model = data["model"]
-            self.scaler = data["scaler"]
+            instance.model = data["model"]
+            instance.scaler = data["scaler"]
+            instance.feature_importances = data.get("feature_importances", {})
+        return instance
 
 
+# ---------------------------------------------------------------------------
 # Convenience functions for main.py
+# ---------------------------------------------------------------------------
 
-def train_baseline(features: np.ndarray, labels: List[int]) -> BaselineClassifier:
+def train_baseline(
+    features: np.ndarray,
+    labels: List[int],
+    feature_names: Optional[List[str]] = None
+) -> Tuple[BaselineClassifier, Dict[str, float]]:
     """
     Train a baseline classifier.
 
     Args:
-        features: Training features
-        labels: Training labels
+        features: Training features (n_samples, n_features)
+        labels: Training labels (0=PASS, 1=FAIL)
+        feature_names: Optional feature names for importance tracking
 
     Returns:
-        Trained BaselineClassifier
+        Tuple of (trained classifier, feature importances dict)
     """
-    from src.features import get_feature_names
-
     classifier = BaselineClassifier()
-    classifier.fit(features, labels, feature_names=get_feature_names())
-
-    # Print feature importances
-    print("      Feature importances:")
-    for name, importance in list(classifier.get_feature_importances().items())[:5]:
-        print(f"        {name}: {importance:.3f}")
-
-    return classifier
+    importances = classifier.fit(features, labels, feature_names=feature_names)
+    return classifier, importances
 
 
 def predict_baseline(model: BaselineClassifier, features: np.ndarray) -> List[int]:
@@ -145,9 +170,9 @@ def predict_baseline(model: BaselineClassifier, features: np.ndarray) -> List[in
 
     Args:
         model: Trained BaselineClassifier
-        features: Test features
+        features: Test features (n_samples, n_features)
 
     Returns:
-        List of predicted labels
+        List of predicted labels (0=PASS, 1=FAIL)
     """
     return model.predict(features)

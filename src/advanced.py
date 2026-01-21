@@ -15,20 +15,35 @@ Caching:
 - Once you've run the pipeline, it can be reproduced without API access
 """
 
+from __future__ import annotations
+
 import base64
 import hashlib
+import io
 import json
+import logging
 import os
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 from PIL import Image
-import io
+
+
+# Default logger (no-op if not provided)
+_default_logger = logging.getLogger(__name__)
 
 
 def image_to_base64(image: np.ndarray) -> str:
-    """Convert numpy array to base64-encoded PNG."""
+    """
+    Convert numpy array to base64-encoded PNG.
+
+    Args:
+        image: 2D grayscale numpy array
+
+    Returns:
+        Base64-encoded string of PNG image
+    """
     img = Image.fromarray(image)
     buffer = io.BytesIO()
     img.save(buffer, format="PNG")
@@ -36,11 +51,19 @@ def image_to_base64(image: np.ndarray) -> str:
 
 
 def get_image_hash(image: np.ndarray) -> str:
-    """Generate a hash for an image (for caching)."""
+    """
+    Generate a hash for an image (for caching).
+
+    Args:
+        image: Numpy array
+
+    Returns:
+        MD5 hash string
+    """
     return hashlib.md5(image.tobytes()).hexdigest()
 
 
-def load_cache(cache_dir: Path) -> dict:
+def load_cache(cache_dir: Path) -> Dict[str, dict]:
     """Load cached responses from disk."""
     cache_file = cache_dir / "gpt4o_responses.json"
     if cache_file.exists():
@@ -49,44 +72,21 @@ def load_cache(cache_dir: Path) -> dict:
     return {}
 
 
-def save_cache(cache_dir: Path, cache: dict):
+def save_cache(cache_dir: Path, cache: Dict[str, dict]) -> None:
     """Save cache to disk."""
     cache_file = cache_dir / "gpt4o_responses.json"
     with open(cache_file, "w") as f:
         json.dump(cache, f, indent=2)
 
 
-def classify_single_image(
-    image: np.ndarray,
-    client,
-    cache: dict,
-    cache_dir: Path
-) -> Tuple[int, str]:
+def build_prompt() -> str:
     """
-    Classify a single image using GPT-4o.
-
-    Args:
-        image: 2D grayscale numpy array
-        client: OpenAI client
-        cache: Cache dictionary
-        cache_dir: Directory for cache file
+    Build the system prompt for GPT-4o.
 
     Returns:
-        Tuple of (label, reasoning)
-        - label: 0 for PASS, 1 for FAIL
-        - reasoning: Model's explanation
+        Prompt string for uniformity analysis
     """
-    # Check cache first
-    image_hash = get_image_hash(image)
-    if image_hash in cache:
-        cached = cache[image_hash]
-        return cached["label"], cached["reasoning"]
-
-    # Prepare the image
-    base64_image = image_to_base64(image)
-
-    # Create the prompt
-    prompt = """You are a medical imaging QA specialist analyzing scanner uniformity tests.
+    return """You are a medical imaging QA specialist analyzing scanner uniformity tests.
 
 This image shows a phantom scan from a medical scanner (MRI, CT, or PET). The phantom is a uniform test object, so the resulting image SHOULD appear uniform - consistent brightness throughout.
 
@@ -104,6 +104,39 @@ IMPORTANT: Respond ONLY with valid JSON in this exact format:
 or
 
 {"classification": "FAIL", "confidence": 90, "reasoning": "Brief explanation of issues found"}"""
+
+
+def classify_single_image(
+    image: np.ndarray,
+    client,
+    cache: Dict[str, dict],
+    cache_dir: Path,
+    logger: logging.Logger
+) -> Tuple[int, str]:
+    """
+    Classify a single image using GPT-4o.
+
+    Args:
+        image: 2D grayscale numpy array
+        client: OpenAI client instance
+        cache: Cache dictionary
+        cache_dir: Directory for cache file
+        logger: Logger instance
+
+    Returns:
+        Tuple of (label, reasoning)
+        - label: 0 for PASS, 1 for FAIL
+        - reasoning: Model's explanation
+    """
+    # Check cache first
+    image_hash = get_image_hash(image)
+    if image_hash in cache:
+        cached = cache[image_hash]
+        return cached["label"], cached["reasoning"]
+
+    # Prepare the image
+    base64_image = image_to_base64(image)
+    prompt = build_prompt()
 
     try:
         response = client.chat.completions.create(
@@ -143,22 +176,32 @@ or
         reasoning = result.get("reasoning", "No reasoning provided")
 
         # Cache the result
-        cache[image_hash] = {"label": label, "reasoning": reasoning}
+        cache[image_hash] = {
+            "label": label,
+            "reasoning": reasoning,
+            "confidence": result.get("confidence"),
+            "raw_classification": result["classification"]
+        }
         save_cache(cache_dir, cache)
 
         return label, reasoning
 
+    except json.JSONDecodeError as e:
+        error_msg = f"Failed to parse GPT-4o response as JSON: {e}"
+        logger.warning(error_msg)
+        return 0, error_msg
+
     except Exception as e:
-        # On error, return uncertain prediction with error message
         error_msg = f"API error: {str(e)}"
-        print(f"      Warning: {error_msg}")
+        logger.warning(error_msg)
         return 0, error_msg  # Default to PASS on error
 
 
 def predict_advanced(
     images: List[np.ndarray],
     paths: List[Path],
-    cache_dir: Path
+    cache_dir: Path,
+    logger: Optional[logging.Logger] = None
 ) -> Tuple[List[int], List[str]]:
     """
     Classify images using GPT-4o Vision.
@@ -167,12 +210,16 @@ def predict_advanced(
         images: List of 2D grayscale numpy arrays
         paths: List of file paths (for logging)
         cache_dir: Directory for caching API responses
+        logger: Optional logger instance
 
     Returns:
         Tuple of (predictions, reasonings)
         - predictions: List of labels (0=PASS, 1=FAIL)
         - reasonings: List of explanation strings
     """
+    if logger is None:
+        logger = _default_logger
+
     # Check for API key
     api_key = os.environ.get("OPENAI_API_KEY")
 
@@ -183,7 +230,7 @@ def predict_advanced(
     cached_count = sum(1 for img in images if get_image_hash(img) in cache)
 
     if cached_count == len(images):
-        print(f"      Using cached responses for all {len(images)} images")
+        logger.info("Using cached responses for all %d images", len(images))
         predictions = []
         reasonings = []
         for img in images:
@@ -194,11 +241,16 @@ def predict_advanced(
 
     if not api_key:
         if cached_count > 0:
-            print(f"      Warning: OPENAI_API_KEY not set. Using {cached_count} cached responses.")
-            print(f"      {len(images) - cached_count} images will use fallback (PASS).")
+            logger.warning(
+                "OPENAI_API_KEY not set. Using %d cached responses, "
+                "%d images will use fallback (PASS)",
+                cached_count, len(images) - cached_count
+            )
         else:
-            print("      Warning: OPENAI_API_KEY not set and no cache available.")
-            print("      Using fallback predictions (all PASS).")
+            logger.warning(
+                "OPENAI_API_KEY not set and no cache available. "
+                "Using fallback predictions (all PASS)"
+            )
 
         predictions = []
         reasonings = []
@@ -218,17 +270,28 @@ def predict_advanced(
 
     predictions = []
     reasonings = []
+    new_api_calls = 0
 
     for i, (image, path) in enumerate(zip(images, paths)):
         image_hash = get_image_hash(image)
-        cached = image_hash in cache
+        was_cached = image_hash in cache
 
-        label, reasoning = classify_single_image(image, client, cache, cache_dir)
+        label, reasoning = classify_single_image(
+            image, client, cache, cache_dir, logger
+        )
         predictions.append(label)
         reasonings.append(reasoning)
 
-        status = "cached" if cached else "API"
+        if not was_cached:
+            new_api_calls += 1
+
+        status = "cached" if was_cached else "API"
         result = "FAIL" if label == 1 else "PASS"
-        print(f"      [{i + 1}/{len(images)}] {path.name}: {result} ({status})")
+        logger.debug("[%d/%d] %s: %s (%s)", i + 1, len(images), path.name, result, status)
+
+    logger.info(
+        "Classified %d images (%d cached, %d API calls)",
+        len(images), cached_count, new_api_calls
+    )
 
     return predictions, reasonings

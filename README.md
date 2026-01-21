@@ -18,7 +18,10 @@ pip install -r requirements.txt
 
 # 4. Add your data (see Data Setup below)
 
-# 5. Run the pipeline
+# 5. Set OpenAI API key (for advanced model)
+export OPENAI_API_KEY=your_api_key_here
+
+# 6. Run the pipeline
 python main.py
 ```
 
@@ -40,11 +43,36 @@ data/
 
 The pipeline supports both DICOM (`.dcm`) and standard image formats (`.png`, `.jpg`).
 
+## Command Line Options
+
+```bash
+python main.py --help
+
+Usage: python main.py [OPTIONS]
+
+Options:
+  --data-dir PATH      Directory containing PASS/ and FAIL/ subdirs (default: ./data)
+  --output-dir PATH    Directory for output files (default: ./outputs)
+  --cache-dir PATH     Directory for API response cache (default: ./cache)
+  --test-size FLOAT    Fraction of data for testing (default: 0.2)
+  --random-state INT   Random seed for reproducibility (default: 42)
+  --no-advanced        Skip the GPT-4o model (baseline only)
+  --verbose, -v        Enable debug logging
+
+Examples:
+  python main.py                              # Run with defaults
+  python main.py --data-dir ./custom_data     # Custom data directory
+  python main.py --test-size 0.3              # 30% test split
+  python main.py --no-advanced                # Skip GPT-4o (faster)
+  python main.py --verbose                    # Debug output
+```
+
 ## Project Structure
 
 ```
 uniformity-classifier/
 ├── README.md                 # This file
+├── REPORT.md                 # Summary report (1-2 pages)
 ├── requirements.txt          # Python dependencies
 ├── main.py                   # Entry point - runs full pipeline
 ├── data/                     # Your dataset (not committed)
@@ -56,67 +84,81 @@ uniformity-classifier/
 │   ├── features.py           # Feature extraction for baseline
 │   ├── baseline.py           # Random Forest classifier
 │   ├── advanced.py           # GPT-4o vision classifier
-│   └── evaluate.py           # Metrics and comparison
-├── tests/                    # Unit tests
+│   └── evaluate.py           # Metrics, comparison, visualization
+├── tests/                    # Unit tests (39 tests)
 │   ├── test_data_loader.py
 │   ├── test_features.py
 │   └── test_evaluate.py
-├── outputs/                  # Generated results
-│   ├── confusion_matrix_baseline.png
-│   ├── confusion_matrix_advanced.png
-│   └── results.json
-└── REPORT.md                 # Summary report (1-2 pages)
+└── outputs/                  # Generated results
+    ├── sample_images.png
+    ├── confusion_matrix_baseline.png
+    ├── confusion_matrix_advanced.png
+    ├── per_image_results.csv
+    └── results.json
 ```
 
 ## Models
 
 ### Baseline: Random Forest on Hand-Crafted Features
 
-Extracts interpretable image quality metrics:
-- Intensity statistics (mean, std, coefficient of variation)
-- Spatial analysis (gradient magnitude)
-- Artifact detection (local variance hotspots)
-- Histogram analysis (entropy, percentile range)
+Extracts 8 interpretable image quality metrics:
+
+| Feature | Description |
+|---------|-------------|
+| `mean_intensity` | Average pixel brightness |
+| `std_intensity` | Standard deviation of pixel values |
+| `coef_of_variation` | Normalized variability (std/mean) |
+| `gradient_magnitude` | Edge/transition detection via Sobel |
+| `max_local_variance` | Artifact hotspot detection |
+| `histogram_entropy` | Pixel distribution spread |
+| `percentile_range` | Robust spread measure (p95-p5) |
+| `center_vs_edge_ratio` | Vignetting detection |
 
 ### Advanced: GPT-4o Vision
 
-Uses OpenAI's GPT-4o to analyze images with natural language reasoning.
+Uses OpenAI's multimodal LLM to analyze images with natural language reasoning.
 Provides interpretable explanations for each classification.
-
-**Note:** Requires `OPENAI_API_KEY` environment variable. Results are cached for offline reproducibility.
-
-## Environment Variables
-
-```bash
-# Required for advanced model
-export OPENAI_API_KEY=your_api_key_here
-```
-
-## Running Tests
-
-```bash
-pytest tests/ -v
-```
 
 ## Outputs
 
 After running `python main.py`, you'll find:
 
-- `outputs/results.json` - Full metrics for both models
-- `outputs/confusion_matrix_baseline.png` - Baseline confusion matrix
-- `outputs/confusion_matrix_advanced.png` - Advanced model confusion matrix
-- Console output with side-by-side comparison
+| File | Description |
+|------|-------------|
+| `sample_images.png` | Visualization of PASS vs FAIL examples |
+| `confusion_matrix_baseline.png` | Baseline model confusion matrix |
+| `confusion_matrix_advanced.png` | GPT-4o model confusion matrix |
+| `per_image_results.csv` | Per-image breakdown with predictions |
+| `results.json` | Full metrics, feature importances, comparison |
+
+## Running Tests
+
+```bash
+# Run all tests
+pytest tests/ -v
+
+# Run with coverage
+pytest tests/ --cov=src --cov-report=term-missing
+```
 
 ## Offline Mode
 
 The advanced model caches all API responses in `cache/gpt4o_responses.json`.
-Once you've run the pipeline, it can be reproduced without API access.
+Once you've run the pipeline, it can be reproduced without API access:
+
+```bash
+# First run - makes API calls and caches
+python main.py
+
+# Subsequent runs - uses cache
+python main.py  # No API calls needed
+```
 
 ## Requirements
 
 - Python 3.9+
 - No GPU required (runs on CPU)
-- ~4GB RAM
+- ~100MB RAM
 
 ## License
 
