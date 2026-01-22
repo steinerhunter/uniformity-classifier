@@ -18,6 +18,7 @@ from typing import Tuple, List
 
 import numpy as np
 from PIL import Image
+from sklearn.model_selection import train_test_split
 
 # Optional DICOM support
 try:
@@ -132,8 +133,6 @@ def split_dataset(
         Tuple of ((train_images, train_labels, train_paths),
                   (test_images, test_labels, test_paths))
     """
-    from sklearn.model_selection import train_test_split
-
     # Create indices for splitting
     indices = list(range(len(images)))
 

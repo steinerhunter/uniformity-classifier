@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
+from openai import OpenAI
 from PIL import Image
 
 
@@ -187,14 +188,20 @@ def classify_single_image(
         return label, reasoning
 
     except json.JSONDecodeError as e:
-        error_msg = f"Failed to parse GPT-4o response as JSON: {e}"
+        error_msg = (
+            f"API_ERROR: Failed to parse GPT-4o response. "
+            f"Flagged FAIL for human review (not a quality assessment). Error: {e}"
+        )
         logger.warning(error_msg)
-        return 0, error_msg
+        return 1, error_msg  # Fail-safe: flag for human review
 
     except Exception as e:
-        error_msg = f"API error: {str(e)}"
+        error_msg = (
+            f"API_ERROR: Request failed. "
+            f"Flagged FAIL for human review (not a quality assessment). Error: {e}"
+        )
         logger.warning(error_msg)
-        return 0, error_msg  # Default to PASS on error
+        return 1, error_msg  # Fail-safe: flag for human review
 
 
 def predict_advanced(
@@ -249,7 +256,7 @@ def predict_advanced(
         else:
             logger.warning(
                 "OPENAI_API_KEY not set and no cache available. "
-                "Using fallback predictions (all PASS)"
+                "Using fail-safe fallback (flagging all uncached as FAIL for human review)"
             )
 
         predictions = []
@@ -260,12 +267,14 @@ def predict_advanced(
                 predictions.append(cache[image_hash]["label"])
                 reasonings.append(cache[image_hash]["reasoning"])
             else:
-                predictions.append(0)  # Default to PASS
-                reasonings.append("Fallback: No API key and not in cache")
+                predictions.append(1)  # Fail-safe: flag for human review
+                reasonings.append(
+                    "API_ERROR: No API key and not in cache. "
+                    "Flagged FAIL for human review (not a quality assessment)."
+                )
         return predictions, reasonings
 
     # Initialize OpenAI client
-    from openai import OpenAI
     client = OpenAI(api_key=api_key)
 
     predictions = []
