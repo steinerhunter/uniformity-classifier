@@ -33,3 +33,6 @@ outputs/
 dist/
 build/
 *.egg-info/
+
+# Personal files
+SUMMARY.html
