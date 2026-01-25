@@ -50,6 +50,10 @@ def load_image(path: Path) -> np.ndarray:
             raise ImportError("pydicom required for DICOM files: pip install pydicom")
         dcm = pydicom.dcmread(path)
         pixel_array = dcm.pixel_array.astype(np.float32)
+        # Handle 3D volumes (e.g., dynamic scans) by taking middle slice
+        if pixel_array.ndim == 3:
+            middle_slice = pixel_array.shape[0] // 2
+            pixel_array = pixel_array[middle_slice]
         # Normalize to 0-255
         if pixel_array.max() > pixel_array.min():
             pixel_array = (pixel_array - pixel_array.min()) / (pixel_array.max() - pixel_array.min()) * 255

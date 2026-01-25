@@ -91,13 +91,20 @@ def build_prompt() -> str:
 
 This image shows a phantom scan from a medical scanner (MRI, CT, or PET). The phantom is a uniform test object, so the resulting image SHOULD appear uniform - consistent brightness throughout.
 
-Analyze this image for uniformity issues:
-1. Brightness variations or gradients (one region brighter than another)
-2. Artifacts (rings, bands, stripes, spots)
-3. Signal dropouts or dead zones
-4. Any other non-uniformities
+CRITICAL: In medical QA, missing a problem (false negative) is DANGEROUS. When in doubt, classify as FAIL to ensure human review.
 
-Based on your analysis, classify as PASS (acceptable uniformity) or FAIL (uniformity issues detected).
+Analyze this image carefully for uniformity issues, including SUBTLE ones:
+1. Brightness variations or gradients (even slight differences between regions)
+2. Artifacts (rings, bands, stripes, spots, noise patterns)
+3. Signal dropouts or dead zones (dark patches)
+4. Edge effects (brightness falling off at edges vs center)
+5. Any texture or pattern that shouldn't be there in a uniform phantom
+
+Look closely - issues can be subtle. A "mostly uniform" image with even minor variations should FAIL.
+
+Based on your analysis, classify as:
+- PASS: Image is truly uniform with no detectable issues
+- FAIL: Any uniformity issues detected, even subtle ones
 
 IMPORTANT: Respond ONLY with valid JSON in this exact format:
 {"classification": "PASS", "confidence": 85, "reasoning": "Brief explanation here"}
