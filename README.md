@@ -1,5 +1,7 @@
 # Uniformity Test Pass/Fail Classifier
 
+[![View Interactive Report](https://img.shields.io/badge/📊_View_Interactive_Report-Live_Demo-blue?style=for-the-badge)](https://steinerhunter.github.io/uniformity-classifier/)
+
 A machine learning pipeline for classifying GE HealthCare scanner uniformity tests as PASS or FAIL.
 
 ## Quick Start
