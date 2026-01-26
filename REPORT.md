@@ -112,12 +112,13 @@ We use GPT-4o Vision not as a novelty, but because it provides something traditi
 
 We refined the prompt based on initial results:
 
-| Version | Change | Impact |
-|---------|--------|--------|
-| v1 (initial) | Basic uniformity analysis prompt | 66.7% accuracy, missed 3 FAILs (too lenient) |
-| v2 | Added "when in doubt, FAIL" + subtle artifact guidance | 77.8% accuracy, 100% recall (matched baseline) |
+| Version | Model | Change | Impact |
+|---------|-------|--------|--------|
+| v1 | GPT-4o | Basic uniformity analysis prompt | 66.7% accuracy, missed 3 FAILs (too lenient) |
+| v2 | GPT-4o | Added "when in doubt, FAIL" + subtle artifact guidance | 77.8% accuracy, 100% recall |
+| v3 | **GPT-5.2** | Upgraded to latest model (Jan 2026) | 77.8% accuracy, 100% recall, richer reasoning |
 
-*v2 accepted as final - conservative behavior appropriate for medical QA.*
+*v3 (GPT-5.2) accepted as final - latest model with superior reasoning quality.*
 
 **v1 Observations:**
 - GPT-4o missed 3 FAIL images that had subtle artifacts
@@ -134,7 +135,12 @@ We refined the prompt based on initial results:
 - Result: GPT-4o now catches ALL failures (100% recall) - matching baseline performance
 - Trade-off: Also flags all PASS images as FAIL (conservative behavior)
 - In medical QA, this is acceptable: false positives → human review, false negatives → patient risk
-- Both models now have 100% agreement on all 18 test images
+
+**v3 Observations (GPT-5.2):**
+- Upgraded to OpenAI's latest flagship model (released 2025)
+- Same accuracy/recall as v2, but with significantly richer reasoning
+- Example reasoning: *"subtle but noticeable low-frequency mottled texture/grain across the field and mild brightness variation... Given QA sensitivity requirements, these non-uniform patterns warrant failure for review"*
+- More precise technical language aids human reviewers in understanding the decision
 
 *(This section demonstrates that we tested, observed, and refined - not just "run once and submit.")*
 
@@ -153,8 +159,8 @@ We refined the prompt based on initial results:
 
 ## 5. Model Comparison
 
-| Metric | Baseline | GPT-4o | Winner |
-|--------|----------|--------|--------|
+| Metric | Baseline | GPT-5.2 | Winner |
+|--------|----------|---------|--------|
 | Accuracy | 77.8% | 77.8% | Tie |
 | Precision | 77.8% | 77.8% | Tie |
 | Recall | 100% | 100% | Tie |
@@ -169,8 +175,9 @@ Both models achieve identical performance after prompt optimization. This valida
 - No API cost
 - Fully offline
 
-**GPT-4o strengths:**
-- Provides reasoning for each decision
+**GPT-5.2 strengths:**
+- Provides detailed reasoning for each decision
+- More sophisticated language aids human reviewers
 - Can identify novel failure modes not captured by hand-crafted features
 - Useful for edge cases requiring human-like judgment
 

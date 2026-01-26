@@ -148,7 +148,7 @@ def classify_single_image(
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5.2",
             messages=[
                 {
                     "role": "user",
@@ -164,8 +164,7 @@ def classify_single_image(
                     ]
                 }
             ],
-            max_tokens=300,
-            temperature=0  # Deterministic output
+            max_completion_tokens=300
         )
 
         # Parse response
