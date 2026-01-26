@@ -1,8 +1,10 @@
 # Uniformity Test Pass/Fail Classifier
 
-[![View Interactive Report](https://img.shields.io/badge/📊_View_Interactive_Report-Live_Demo-blue?style=for-the-badge)](https://steinerhunter.github.io/uniformity-classifier/)
+[![View Full Report](https://img.shields.io/badge/📊_View_Full_Report-Documentation-blue?style=for-the-badge)](https://steinerhunter.github.io/uniformity-classifier/)
 
 A machine learning pipeline for classifying GE HealthCare scanner uniformity tests as PASS or FAIL.
+
+> **Note:** The test images are not included in this repository. You will need to add your own DICOM images to the `data/` directory (see Data Setup below).
 
 ## Quick Start
 
