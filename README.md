@@ -60,14 +60,14 @@ Options:
   --cache-dir PATH     Directory for API response cache (default: ./cache)
   --test-size FLOAT    Fraction of data for testing (default: 0.2)
   --random-state INT   Random seed for reproducibility (default: 42)
-  --no-advanced        Skip the GPT-4o model (baseline only)
+  --no-advanced        Skip the GPT-5.2 model (baseline only)
   --verbose, -v        Enable debug logging
 
 Examples:
   python main.py                              # Run with defaults
   python main.py --data-dir ./custom_data     # Custom data directory
   python main.py --test-size 0.3              # 30% test split
-  python main.py --no-advanced                # Skip GPT-4o (faster)
+  python main.py --no-advanced                # Skip GPT-5.2 (faster)
   python main.py --verbose                    # Debug output
 ```
 
@@ -82,12 +82,12 @@ uniformity-classifier/
 ├── data/                     # Your dataset (not committed)
 │   ├── PASS/
 │   └── FAIL/
-├── cache/                    # Cached GPT-4o responses (for offline mode)
+├── cache/                    # Cached GPT-5.2 responses (for offline mode)
 ├── src/
 │   ├── data_loader.py        # Load and split dataset
 │   ├── features.py           # Feature extraction for baseline
 │   ├── baseline.py           # Random Forest classifier
-│   ├── advanced.py           # GPT-4o vision classifier
+│   ├── advanced.py           # GPT-5.2 vision classifier
 │   └── evaluate.py           # Metrics, comparison, visualization
 ├── tests/                    # Unit tests (39 tests)
 │   ├── test_data_loader.py
@@ -118,7 +118,7 @@ Extracts 8 interpretable image quality metrics:
 | `percentile_range` | Robust spread measure (p95-p5) |
 | `center_vs_edge_ratio` | Vignetting detection |
 
-### Advanced: GPT-4o Vision
+### Advanced: GPT-5.2 Vision
 
 Uses OpenAI's multimodal LLM to analyze images with natural language reasoning.
 Provides interpretable explanations for each classification.
@@ -131,7 +131,7 @@ After running `python main.py`, you'll find:
 |------|-------------|
 | `sample_images.png` | Visualization of PASS vs FAIL examples |
 | `confusion_matrix_baseline.png` | Baseline model confusion matrix |
-| `confusion_matrix_advanced.png` | GPT-4o model confusion matrix |
+| `confusion_matrix_advanced.png` | GPT-5.2 model confusion matrix |
 | `per_image_results.csv` | Per-image breakdown with predictions |
 | `results.json` | Full metrics, feature importances, comparison |
 
@@ -147,7 +147,7 @@ pytest tests/ --cov=src --cov-report=term-missing
 
 ## Offline Mode
 
-The advanced model caches all API responses in `cache/gpt4o_responses.json`.
+The advanced model caches all API responses in `cache/gpt5_responses.json`.
 Once you've run the pipeline, it can be reproduced without API access:
 
 ```bash

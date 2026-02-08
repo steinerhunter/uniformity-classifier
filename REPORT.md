@@ -35,7 +35,7 @@ We approached this as **integrators, not researchers**. The goal isn't to publis
 | Model | Purpose | Strength |
 |-------|---------|----------|
 | **Baseline (Random Forest)** | Fast, interpretable benchmark | Proves we understand the physics |
-| **Advanced (GPT-4o Vision)** | Explainable AI decisions | Provides reasoning for every call |
+| **Advanced (GPT-5.2 Vision)** | Explainable AI decisions | Provides reasoning for every call |
 
 ---
 
@@ -89,11 +89,11 @@ We approached this as **integrators, not researchers**. The goal isn't to publis
 
 Healthcare demands **explainability**. A black-box CNN that says "FAIL" isn't useful if the technician can't understand *why*.
 
-We use GPT-4o Vision not as a novelty, but because it provides something traditional classifiers can't: **natural language reasoning**.
+We use GPT-5.2 Vision not as a novelty, but because it provides something traditional classifiers can't: **natural language reasoning**.
 
 ### How It Works
 
-1. Image is sent to GPT-4o with a domain-specific prompt
+1. Image is sent to GPT-5.2 with a domain-specific prompt
 2. Model analyzes for artifacts, gradients, dropouts
 3. Returns structured JSON: `{classification, confidence, reasoning}`
 4. Response is cached for offline reproducibility
@@ -168,7 +168,7 @@ We refined the prompt based on initial results:
 
 ### Analysis
 
-Both models achieve identical performance after prompt optimization. This validates our physics-informed feature engineering—the hand-crafted features capture the same signal that GPT-4o identifies through visual analysis.
+Both models achieve identical performance after prompt optimization. This validates our physics-informed feature engineering—the hand-crafted features capture the same signal that GPT-5.2 identifies through visual analysis.
 
 **Baseline strengths:**
 - Faster inference (milliseconds vs seconds)
@@ -184,7 +184,7 @@ Both models achieve identical performance after prompt optimization. This valida
 **Why both models are conservative:**
 Both models flag all test images as FAIL, including 4 that are labeled PASS. This is intentional: in medical QA, missing a failure is dangerous, while a false alarm just triggers human review. We tuned for **high recall** over high precision.
 
-**Recommendation:** Use baseline for routine batch processing; escalate uncertain cases to GPT-4o for detailed analysis.
+**Recommendation:** Use baseline for routine batch processing; escalate uncertain cases to GPT-5.2 for detailed analysis.
 
 ---
 
@@ -195,7 +195,7 @@ Both models flag all test images as FAIL, including 4 that are labeled PASS. Thi
 The assignment specifically asked: *"If you use commercial APIs, ensure your solution can also run in an offline/fallback mode."*
 
 **Our solution:**
-- All GPT-4o responses are cached by image hash
+- All GPT-5.2 responses are cached by image hash
 - First run makes API calls and saves results
 - Subsequent runs use cache—no internet required
 - This also makes results **reproducible**
@@ -203,7 +203,7 @@ The assignment specifically asked: *"If you use commercial APIs, ensure your sol
 ### Cost Management
 
 - Baseline model: Free (runs locally)
-- GPT-4o: ~$0.01-0.03 per image (cached after first call)
+- GPT-5.2: ~$0.01-0.03 per image (cached after first call)
 
 ### Deployment
 
@@ -211,7 +211,7 @@ The assignment specifically asked: *"If you use commercial APIs, ensure your sol
 # Single command runs entire pipeline
 python main.py --data-dir /path/to/images
 
-# Skip GPT-4o for faster processing
+# Skip GPT-5.2 for faster processing
 python main.py --no-advanced
 ```
 
@@ -268,8 +268,8 @@ The baseline proves we understand the problem. The AI layer adds the interpretab
 See `outputs/per_image_results.csv` for complete breakdown including:
 - Ground truth label
 - Baseline prediction
-- GPT-4o prediction
-- GPT-4o reasoning
+- GPT-5.2 prediction
+- GPT-5.2 reasoning
 - Agreement between models
 
 ## Appendix C: Reproducibility

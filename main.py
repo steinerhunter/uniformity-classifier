@@ -9,13 +9,13 @@ Usage:
     python main.py                          # Run with defaults
     python main.py --data-dir ./my_data     # Custom data directory
     python main.py --test-size 0.3          # 30% test split
-    python main.py --no-advanced            # Skip GPT-4o (baseline only)
+    python main.py --no-advanced            # Skip GPT-5.2 (baseline only)
     python main.py --verbose                # Debug logging
 
 This script:
 1. Loads and splits the dataset
 2. Trains and evaluates the baseline model (Random Forest)
-3. Runs and evaluates the advanced model (GPT-4o Vision)
+3. Runs and evaluates the advanced model (GPT-5.2 Vision)
 4. Outputs comparison metrics, confusion matrices, and per-image results
 """
 
@@ -71,7 +71,7 @@ Examples:
   python main.py                              Run with default settings
   python main.py --data-dir ./custom_data     Use custom data directory
   python main.py --test-size 0.3              Use 30% of data for testing
-  python main.py --no-advanced                Skip GPT-4o model (faster)
+  python main.py --no-advanced                Skip GPT-5.2 model (faster)
   python main.py --verbose                    Enable debug logging
         """
     )
@@ -114,7 +114,7 @@ Examples:
     parser.add_argument(
         "--no-advanced",
         action="store_true",
-        help="Skip the advanced (GPT-4o) model"
+        help="Skip the advanced (GPT-5.2) model"
     )
 
     parser.add_argument(
@@ -214,7 +214,7 @@ def main() -> int:
     advanced_reasoning: Optional[list] = None
 
     if not args.no_advanced:
-        logger.info("[4/6] Running advanced model (GPT-4o Vision)")
+        logger.info("[4/6] Running advanced model (GPT-5.2 Vision)")
 
         advanced_predictions, advanced_reasoning = predict_advanced(
             test_images,
@@ -222,9 +222,9 @@ def main() -> int:
             cache_dir=args.cache_dir,
             logger=logger
         )
-        advanced_metrics = evaluate_model(test_labels, advanced_predictions, "GPT-4o")
+        advanced_metrics = evaluate_model(test_labels, advanced_predictions, "GPT-5.2")
 
-        logger.info("GPT-4o accuracy: %.1f%%", advanced_metrics["accuracy"] * 100)
+        logger.info("GPT-5.2 accuracy: %.1f%%", advanced_metrics["accuracy"] * 100)
     else:
         logger.info("[4/6] Skipping advanced model (--no-advanced flag)")
 
@@ -246,7 +246,7 @@ def main() -> int:
         plot_confusion_matrix(
             test_labels,
             advanced_predictions,
-            "Advanced (GPT-4o)",
+            "Advanced (GPT-5.2)",
             args.output_dir / "confusion_matrix_advanced.png"
         )
         logger.debug("Saved advanced confusion matrix")
@@ -302,7 +302,7 @@ def main() -> int:
     print("=" * 60)
 
     if advanced_metrics:
-        print(f"\n{'Metric':<20} {'Baseline':<15} {'GPT-4o':<15} {'Winner':<10}")
+        print(f"\n{'Metric':<20} {'Baseline':<15} {'GPT-5.2':<15} {'Winner':<10}")
         print("-" * 60)
         for metric in ["accuracy", "precision", "recall", "f1_score"]:
             b_val = baseline_metrics[metric]

@@ -1,5 +1,5 @@
 """
-Advanced classifier using GPT-4o Vision.
+Advanced classifier using GPT-5.2 Vision.
 
 Uses OpenAI's multimodal LLM to analyze uniformity test images
 with natural language reasoning.
@@ -66,7 +66,7 @@ def get_image_hash(image: np.ndarray) -> str:
 
 def load_cache(cache_dir: Path) -> Dict[str, dict]:
     """Load cached responses from disk."""
-    cache_file = cache_dir / "gpt4o_responses.json"
+    cache_file = cache_dir / "gpt5_responses.json"
     if cache_file.exists():
         with open(cache_file, "r") as f:
             return json.load(f)
@@ -75,14 +75,14 @@ def load_cache(cache_dir: Path) -> Dict[str, dict]:
 
 def save_cache(cache_dir: Path, cache: Dict[str, dict]) -> None:
     """Save cache to disk."""
-    cache_file = cache_dir / "gpt4o_responses.json"
+    cache_file = cache_dir / "gpt5_responses.json"
     with open(cache_file, "w") as f:
         json.dump(cache, f, indent=2)
 
 
 def build_prompt() -> str:
     """
-    Build the system prompt for GPT-4o.
+    Build the system prompt for GPT-5.2.
 
     Returns:
         Prompt string for uniformity analysis
@@ -122,7 +122,7 @@ def classify_single_image(
     logger: logging.Logger
 ) -> Tuple[int, str]:
     """
-    Classify a single image using GPT-4o.
+    Classify a single image using GPT-5.2.
 
     Args:
         image: 2D grayscale numpy array
@@ -195,7 +195,7 @@ def classify_single_image(
 
     except json.JSONDecodeError as e:
         error_msg = (
-            f"API_ERROR: Failed to parse GPT-4o response. "
+            f"API_ERROR: Failed to parse GPT-5.2 response. "
             f"Flagged FAIL for human review (not a quality assessment). Error: {e}"
         )
         logger.warning(error_msg)
@@ -217,7 +217,7 @@ def predict_advanced(
     logger: Optional[logging.Logger] = None
 ) -> Tuple[List[int], List[str]]:
     """
-    Classify images using GPT-4o Vision.
+    Classify images using GPT-5.2 Vision.
 
     Args:
         images: List of 2D grayscale numpy arrays
